@@ -1,12 +1,12 @@
 # function-magnitude
 
-A tool for identifying the (big-O) runtime of a Python function. This is found by measuring the execution time of a given function for various input sizes, then using least-squares error to fit a selection of common runtime functions to the results. The fitted function with the smallest error is found and returned.
+A tool for identifying the (big-O) run time of a Python function. This is found by measuring the execution time of a given function for various input sizes, then using least-squares error to fit a selection of common run time functions to the results. The fitted function with the smallest error is found and returned.
 
 ## Getting Started
 
 This project consists of two modules.
 * `arrays.py` - A class to represent matrices/vectors and perform typical operations including solving systems of linear equations.
-* `magnitude.py` - The collection of functions to measure function runtime and write data to csv.
+* `magnitude.py` - The collection of functions to measure function run time and write data to csv.
 
 ### Prerequisites
 
@@ -37,7 +37,7 @@ To observe the output of the above snippet, run the `magnitude.py` module as fol
 
 This will create a file `Graph Data.csv` in the working directory, which may be used to plot the execution time for varying task sizes, and the fitted comparison functions.
 
-\* The tested big-O runtimes are from the list `magnitudeForms` in the `magnitude.py` module.  
+\* The tested big-O run times are from the list `magnitudeForms` in the `magnitude.py` module.  
 \** The `getData` method must be supplied with the handle to a function which generates input for `testFunction`. This function must, in turn, take a single input number - the task size. Task sizes to test are defined by a start value, step value and stop value (all given to `getData`.)
 
 ## Authors
