@@ -17,24 +17,28 @@ import os
 #The list of function tuples to consider, each entry must be of the form (title,
 #variable label, function) all of type str, where the function may be formatted
 #with the 'n' value and evaluate to a float.
-magnitudeForms = [('Constant', 'cons', '1'), ('Linear', 'lin', '{}'), 
-                  ('Quadratic', 'quad', '{} ** 2'), ('Cubic', 'cube', '{} ** 3'),
-                  ('Logarithmic', 'log', 'math.log({})'),
-                  ('Log-Linear', 'logl', '{0} * math.log({0})')]
+magnitudeForms = [('Constant', '1'), ('Linear', '{}'), 
+                  ('Quadratic', '{} ** 2'), ('Cubic', '{} ** 3'),
+                  ('Logarithmic', 'math.log({})'),
+                  ('Log-Linear', '{0} * math.log({0})')]
 
 
-def getData(function_str, iterable, runsPerTrial=1):
-    """Takes the name of a local function (type str), an iterable which generates
-    test input, and the number of times each test input value should be tested
-    (type int). Returns the collected time data as a list of tuples of the form
-    (iterable index, time taken)"""
-    trials = len(iterable)
+def getData(function_str, task_gen_func, task_size_start, task_size_step, task_size_stop, runsPerTrial=1):
+    """Takes the name of a function to test (type str), the handle
+    to a function which generates input for the first function, and
+    the range of task sizes to test (as start,step and stop values).
+    Returns the collected time data as a list of tuples of the form
+    (task size, time taken)."""
+    task_size = task_size_start
         
     data = []
-    for n in iterable:
-        t1 = timeit.Timer('{}({})'.format(function_str, n), 'from __main__ import {}'.format(function_str))
+    while task_size <= task_size_stop:
+        arguments = task_gen_func(task_size)
+        t1 = timeit.Timer('{}({})'.format(function_str, arguments), 'from __main__ import {}'.format(function_str))
         value = t1.timeit(number=runsPerTrial)
-        data.append((n, value))
+        data.append((task_size, value))
+        
+        task_size += task_size_step
     
     return data
     
@@ -47,26 +51,26 @@ def getFittedFuncs(data):
     b = Array(trials, 1)
     
     A_dict = {}
-    for title, label, function in magnitudeForms:
-        A_dict[label] = b.deepCopy()
+    for title, function in magnitudeForms:
+        A_dict[title] = b.deepCopy()
         
     for index in range(trials):
         b.changeEntry(index, 0, data[index][1])
-        for title, label, function in magnitudeForms:
+        for title, function in magnitudeForms:
             expected_value = eval(function.format(data[index][0]))
-            A_dict[label].changeEntry(index, 0, expected_value)
+            A_dict[title].changeEntry(index, 0, expected_value)
     
     fitted_functions_dict = {}
-    for title, label, function in magnitudeForms:
-        x = lsSolve(A_dict[label], b)
-        fitted_functions_dict[label] = A_dict[label] * x
+    for title, function in magnitudeForms:
+        x = lsSolve(A_dict[title], b)
+        fitted_functions_dict[title] = A_dict[title] * x
     
     return fitted_functions_dict
 
 
 def getMagnitude(data, fittedFuncs):
     """Compares the shape of the given data with that of the possible functions
-    (in magnitudeForms). Returns the label of the function that can be scaled
+    (in magnitudeForms). Returns the title of the function that can be scaled
     to provide the smallest error."""
     trials = len(data)
     b = Array(trials, 1)
@@ -75,8 +79,8 @@ def getMagnitude(data, fittedFuncs):
         b.changeEntry(index, 0, data[index][1])
         
     errors = []
-    for title, label, function in magnitudeForms:
-        error = (b - fittedFuncs[label]).ONEnorm()
+    for title, function in magnitudeForms:
+        error = (b - fittedFuncs[title]).ONEnorm()
         errors.append(error)
 
     return magnitudeForms[errors.index(min(errors))][0]
@@ -87,7 +91,7 @@ def resultToCsv(data, fittedFuncs):
     
     output = ''
     output += 'Job Size, Time,'
-    for title, label, function in magnitudeForms:
+    for title, function in magnitudeForms:
         output += title + ','
     output += '\n'
     
@@ -95,8 +99,8 @@ def resultToCsv(data, fittedFuncs):
         line = str(data[index][0]) + ','
         line += str(data[index][1]) + ','
         
-        for title, label, function in magnitudeForms:
-            value = fittedFuncs[label].getEntry(index, 0)
+        for title, function in magnitudeForms:
+            value = fittedFuncs[title].getEntry(index, 0)
             line += "{}, ".format(value)
             
         output += line + '\n'
@@ -104,13 +108,22 @@ def resultToCsv(data, fittedFuncs):
     return output
     
         
-def testfunction1(n):
-    for i in range(n):
-        assignment = 1
+def testFunction(inputList):
+    """A sample function to measure. Returns the length of a given list."""
+    return len(inputList)
+
+
+def testTaskGen(task_size):
+    """A sample task generator function. Returns a list with task_size
+    entries, formatted as a string. Note: eval(return value) must be
+    suitable as input for measured function."""
+    task = [0] * task_size
+    formatted_task = str(task)
+    return formatted_task
 
 
 def main():
-    data = getData('testfunction1', range(1, 10001, 100), 100)
+    data = getData('testFunction', testTaskGen, 1, 100, 1001, 100)
     fittedFuncs = getFittedFuncs(data)
     magnitudeLabel = getMagnitude(data, fittedFuncs)
     csvData = resultToCsv(data, fittedFuncs)
@@ -123,4 +136,4 @@ def main():
 
 if __name__ == '__main__':
     main()
-    
+   
