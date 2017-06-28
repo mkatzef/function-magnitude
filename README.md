@@ -15,7 +15,7 @@ To run function-magnitude, the host machine must have the following installed:
 
 ### Use
 
-The module `magnitude.py` offers four methods that work together to characterise a given function. These should be imported by a script which has access to the measured function (e.g. "testFunction"), as follows.
+The module `magnitude.py` offers four methods that work together to characterise a given function. These should be imported by a script which has access to the measured function (e.g. "testFunction"), as follows.  
 `from magnitude import getData, getFittedFuncs, getMagnitude, resultToCsv`
 
 Typical use of these methods is present as the contents of the `main` function of `magnitude.py`, namely:
@@ -37,7 +37,7 @@ To observe the output of the above snippet, run the `magnitude.py` module as fol
 
 This will create a file `Graph Data.csv` in the working directory, which may be used to plot the execution time for varying task sizes, and the fitted comparison functions.
 
-\* The tested big-O runtimes are from the list `magnitudeForms` in the `magnitude.py` module.
+\* The tested big-O runtimes are from the list `magnitudeForms` in the `magnitude.py` module.  
 \** The `getData` method must be supplied with the handle to a function which generates input for `testFunction`. This function must, in turn, take a single input number - the task size. Task sizes to test are defined by a start value, step value and stop value (all given to `getData`.)
 
 ## Authors
