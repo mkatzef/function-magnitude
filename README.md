@@ -18,7 +18,7 @@ To run function-magnitude, the host machine must have the following installed:
 The module `magnitude.py` offers four methods that work together to characterise a given function. These should be imported by a script which has access to the measured function (e.g. "testFunction"), as follows.
 `from magnitude import getData, getFittedFuncs, getMagnitude, resultToCsv`
 
-Typical use of these methods is present as the contents of the "main" function of `magnitude.py`, namely:
+Typical use of these methods is present as the contents of the `main` function of `magnitude.py`, namely:
 ```data = getData('testFunction', testTaskGen, 1, 100, 10001, 100)
 fittedFuncs = getFittedFuncs(data)
 magnitudeLabel = getMagnitude(data, fittedFuncs)
@@ -27,7 +27,8 @@ csvData = resultToCsv(data, fittedFuncs)
 print("Function magnitude:", magnitudeLabel)
 
 with open('Graph Data.csv', "w") as outfile:
-    outfile.write(csvData)```
+    outfile.write(csvData)
+```
 
 In order, this snippet times the execution of the function named "testFunction", identifies the times which would be taken by the fitted version of each available comparison function\* (for each task size\*\*), then retrieves two characterisation strings: the best-suited comparison function's name, and the csv-formatted time data for each comparison function. 
 
